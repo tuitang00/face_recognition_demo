@@ -7,7 +7,8 @@ import datetime
 
 started = datetime.datetime.now()
 
-video_capture = cv2.VideoCapture('三国.mp4')
+video_path = '../source_package/test_video02.mp4'
+video_capture = cv2.VideoCapture(video_path)
 fps = video_capture.get(cv2.CAP_PROP_FPS)
 print 'fps: ', fps
 # obama_img = face_recognition.load_image_file("ss.png")
@@ -23,7 +24,7 @@ face_maps = {}
 person_number = 0
 person_appear_maps = {}
 
-ignore_interval = datetime.timedelta(5)
+ignore_interval = datetime.timedelta(seconds=10)
 step = int(fps) * 5
 
 
@@ -61,9 +62,15 @@ def frame_to_time(frame):
     return str(datetime.timedelta(seconds=frame / fps)).split('.')[0]
 
 
-def is_in_intervel(video_time):
+def is_in_intervel(face_id, video_time):
+    # print '^^^^^^^^^^^^'
+    # print 'Find person: ', face_id
     video_now = datetime.datetime.strptime(video_time, '%H:%M:%S')
+    # print 'now : ', video_now
     last_video_time = datetime.datetime.strptime(person_appear_maps[face_id][-1][-1],  '%H:%M:%S')
+    # print 'last appear: ', last_video_time
+    # print ' ', video_now - last_video_time
+    # print ignore_interval
     return video_now - last_video_time < ignore_interval
 
 
@@ -73,7 +80,7 @@ face_names = []
 while True:
     ret, frame = video_capture.read()
     if frame is None:
-        print 'no frame'
+        print 'no more frame'
         break
     # cv2.imshow('Video', frame)
     # time.sleep(3)
@@ -93,7 +100,7 @@ while True:
         video_time = frame_to_time(frames)
         if is_new:
             person_appear_maps[face_id] = [[video_time, video_time]]
-        elif is_in_intervel(video_time):
+        elif is_in_intervel(face_id, video_time):
             person_appear_maps[face_id][-1][-1] = video_time
         else:
             person_appear_maps[face_id].append([video_time, video_time])
@@ -105,22 +112,22 @@ while True:
     # else:
     #     name = "unknown"
     # # print name
-    face_names.append('xxx')
+    # face_names.append('xxx')
     # process_this_frame = not process_this_frame
     #
-    for (top, right, bottom, left), name in zip(face_locations, face_names):
-        # top *= 2
-        # right *= 2
-        # bottom *= 2
-        # left *= 2
+    # for (top, right, bottom, left), name in zip(face_locations, face_names):
+    #     # top *= 2
+    #     # right *= 2
+    #     # bottom *= 2
+    #     # left *= 2
+    #
+    #     cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255),  3)
+    #     # print 'show'
+    #     cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), 2)
+    #     font = cv2.FONT_HERSHEY_DUPLEX
+    #     cv2.putText(frame, name, (left+6, bottom-6), font, 1.0, (55, 255, 155), 1)
 
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255),  3)
-        # print 'show'
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), 2)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left+6, bottom-6), font, 1.0, (55, 255, 155), 1)
-
-    cv2.imshow('Video', frame)
+    # cv2.imshow('Video', frame)
     # cv2.waitKey(1000)
     # if cv2.waitKey(30) & 0xFF == ord('q'):
     #     break
